@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  APP_NAME: "PWA Checklist App"
+  APP_NAME: 'PWA Checklist App'
 
 jobs:
   build-and-deploy:
