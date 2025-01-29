@@ -6,6 +6,7 @@ export default [
   {
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
     ignores: ["dist/*", "docs/*"],
+    rules: { "no-unused-vars": "warn", "no-undef": "warn" },
   },
   pluginJs.configs.recommended,
 ];
