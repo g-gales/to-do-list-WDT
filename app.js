@@ -7,6 +7,7 @@ import {
   getFirestore,
   collection,
 } from "firebase/firestore";
+import log from "loglevel";
 
 //Service Worker Registration
 const sw = new URL("service-worker.js", import.meta.url);
@@ -116,3 +117,11 @@ function sanitizeInput(input) {
 window.addEventListener("error", function (event) {
   console.error("Error occurred: ", event.message);
 });
+
+// Set the log level (trace, debug, info, warn, error)
+log.setLevel("info");
+
+// Example logs
+log.info("Application started");
+log.debug("Debugging information");
+log.error("An error occurred");
