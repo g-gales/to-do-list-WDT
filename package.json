@@ -2,6 +2,7 @@
   "name": "to-do-list",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "homepage": "https://github.com/g-gales/to-do-list-WDT#readme",
   "bugs": {
     "url": "https://github.com/g-gales/to-do-list-WDT/issues"
@@ -12,7 +13,6 @@
   },
   "license": "ISC",
   "author": "",
-  "type": "module",
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build --dist-dir docs --public-url /to-do-list-WDT/ index.html",
