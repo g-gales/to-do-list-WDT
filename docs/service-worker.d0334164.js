@@ -1,0 +1,2 @@
+const t=["/To-Do List/","/To-Do List/index.html","/To-Do List/style.css","/To-Do List/app.js","/To-Do List/manifest.json","/To-Do List/icons/icon-128.png","/To-Do List/icons/icon-512.png"];self.addEventListener("install",o=>{o.waitUntil(caches.open("to-do-pwa-cache-v1").then(async o=>{for(let e of t)try{await o.add(e)}catch(t){console.error(`Failed to cache ${e}:`,t)}}))}),self.addEventListener("fetch",t=>{t.respondWith(caches.match(t.request).then(o=>o||fetch(t.request)))});
+//# sourceMappingURL=service-worker.d0334164.js.map
