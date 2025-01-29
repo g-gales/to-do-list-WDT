@@ -45,6 +45,10 @@ const taskInput = document.getElementById("taskInput");
 const addTaskBtn = document.getElementById("addTaskBtn");
 const taskList = document.getElementById("taskList");
 
+window.addEventListener("load", () => {
+  renderTasks();
+});
+
 addTaskBtn.addEventListener("click", async () => {
   const task = taskInput.value.trim();
   if (task) {
@@ -72,7 +76,7 @@ async function renderTasks() {
   var tasks = await getTasksFromFirestore();
   taskList.innerHTML = "";
 
-  tasks.forEach((task) => {
+  tasks.forEach((task, index) => {
     if (!task.data().completed) {
       const taskItem = document.createElement("li");
       taskItem.id = task.id;
@@ -81,6 +85,16 @@ async function renderTasks() {
     }
   });
 }
+
+// Remove Task
+taskList.addEventListener("click", async (e) => {
+  if (e.target.tagName === "LI") {
+    await updateDoc(doc(db, "todos", e.target.id), {
+      completed: true,
+    });
+  }
+  renderTasks();
+});
 
 async function getTasksFromFirestore() {
   var data = await getDocs(collection(db, "todos"));
