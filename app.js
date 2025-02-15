@@ -50,10 +50,17 @@ window.addEventListener("load", () => {
   renderTasks();
 });
 
+//Accessibility Additions
+taskInput.addEventListener("keypress", function (event) {
+  if (event.key === "Enter") {
+    addTaskBtn.click();
+  }
+});
+
+//Add Task
 addTaskBtn.addEventListener("click", async () => {
   const task = taskInput.value.trim();
   if (task) {
-    const taskInput = document.getElementById("taskInput");
     const taskText = sanitizeInput(taskInput.value.trim());
 
     if (taskText) {
@@ -82,6 +89,7 @@ async function renderTasks() {
       const taskItem = document.createElement("li");
       taskItem.id = task.id;
       taskItem.textContent = task.data().text;
+      taskItem.tabIndex = 0;
       taskList.appendChild(taskItem);
     }
   });
