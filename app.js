@@ -69,7 +69,18 @@ addTaskBtn.addEventListener("click", async () => {
       taskInput.value = "";
     }
     renderTasks();
+  } else {
+    alert("Please enter a task!");
   }
+});
+
+taskList.addEventListener("keypress", async function (e) {
+  if (e.target.tagName === "LI" && e.key === "Enter") {
+    await updateDoc(doc(db, "todos", e.target.id), {
+      completed: true,
+    });
+  }
+  renderTasks();
 });
 
 async function addTaskToFirestore(taskText) {
