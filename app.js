@@ -67,14 +67,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-//Call in the event listener for page load
-async function getApiKey() {
-  let snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
-  apiKey = snapshot.data().key;
-  genAI = new GoogleGenerativeAI(apiKey);
-  model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-}
-
 //Add data to Firebase
 async function addTaskToFirestore(taskText) {
   await addDoc(collection(db, "todos"), {
@@ -110,6 +102,14 @@ async function renderTasks() {
 }
 
 //Chatbot
+//Call in the event listener for page load
+async function getApiKey() {
+  let snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
+  apiKey = snapshot.data().key;
+  genAI = new GoogleGenerativeAI(apiKey);
+  model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+}
+
 //Trigger response
 async function askChatBot(request) {
   return await model.generateContent(request);
@@ -195,7 +195,7 @@ function removeFromTaskName(task) {
   return true;
 }
 
-// Remove Task
+// Remove Task -- removes from firebase, then calls renderTasks which pulls firebase stored data
 taskList.addEventListener("click", async (e) => {
   if (e.target.tagName === "LI") {
     await updateDoc(doc(db, "todos", e.target.id), {
