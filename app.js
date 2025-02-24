@@ -10,6 +10,17 @@ import {
 import log from "loglevel";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+/*
+ToC
+Variables - Line 24
+PWA & Service Worker - Line 37
+Firebase - Line 55
+Chatbot - Line 112
+Renders - Line 167
+Accessibilities - Line 213
+Sanitization, Errors & Logging - Line 231
+*/
+
 //Variables
 const taskInput = document.getElementById("taskInput");
 const addTaskBtn = document.getElementById("addTaskBtn");
@@ -41,6 +52,7 @@ if ("serviceWorker" in navigator) {
     .catch((err) => console.error("Service Worker Error:", err));
 }
 
+//Firebase
 //Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyB1N9TPlje8RLoAJ3tw1KYhLFPNzPjmSek",
@@ -63,10 +75,47 @@ async function getApiKey() {
   model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 }
 
+//Add data to Firebase
+async function addTaskToFirestore(taskText) {
+  await addDoc(collection(db, "todos"), {
+    text: taskText,
+    completed: false,
+  });
+}
+
+//Fetch tasks from Firestore when app loads
+async function getTasksFromFirestore() {
+  var data = await getDocs(collection(db, "todos"));
+  let userData = [];
+  data.forEach((doc) => {
+    userData.push(doc);
+  });
+  return userData;
+}
+
+//Render tasks
+async function renderTasks() {
+  var tasks = await getTasksFromFirestore();
+  taskList.innerHTML = "";
+
+  tasks.forEach((task) => {
+    if (!task.data().completed) {
+      const taskItem = document.createElement("li");
+      taskItem.id = task.id;
+      taskItem.textContent = task.data().text;
+      taskItem.tabIndex = 0;
+      taskList.appendChild(taskItem);
+    }
+  });
+}
+
+//Chatbot
+//Trigger response
 async function askChatBot(request) {
   return await model.generateContent(request);
 }
 
+//Rules for chatbot response
 function ruleChatBot(request) {
   if (request.startsWith("add task")) {
     let task = request.replace("add task", "").trim();
@@ -94,6 +143,7 @@ function ruleChatBot(request) {
   return false;
 }
 
+//Add functionality to chatbot button
 aiButton.addEventListener("click", async () => {
   let prompt = aiInput.value.trim().toLowerCase();
   if (prompt) {
@@ -105,6 +155,7 @@ aiButton.addEventListener("click", async () => {
   }
 });
 
+//Display chatbot messages
 function appendMessage(message) {
   let history = document.createElement("div");
   history.textContent = message;
@@ -113,30 +164,7 @@ function appendMessage(message) {
   aiInput.value = "";
 }
 
-function removeFromTaskName(task) {
-  let ele = document.getElementsByName(task);
-  if (ele.length == 0) {
-    return false;
-  }
-  ele.forEach((e) => {
-    removeTask(e.id);
-    removeVisualTask(e.id);
-  });
-  return true;
-}
-
-// Add Task
-window.addEventListener("load", () => {
-  renderTasks();
-});
-
-//Accessibility Additions
-taskInput.addEventListener("keypress", function (event) {
-  if (event.key === "Enter") {
-    addTaskBtn.click();
-  }
-});
-
+//Tasklists
 //Add Task
 addTaskBtn.addEventListener("click", async () => {
   const task = taskInput.value.trim();
@@ -154,36 +182,17 @@ addTaskBtn.addEventListener("click", async () => {
   }
 });
 
-taskList.addEventListener("keypress", async function (e) {
-  if (e.target.tagName === "LI" && e.key === "Enter") {
-    await updateDoc(doc(db, "todos", e.target.id), {
-      completed: true,
-    });
+//Remove Tasks for chatbot
+function removeFromTaskName(task) {
+  let ele = document.getElementsByName(task);
+  if (ele.length == 0) {
+    return false;
   }
-  renderTasks();
-});
-
-async function addTaskToFirestore(taskText) {
-  await addDoc(collection(db, "todos"), {
-    text: taskText,
-    completed: false,
+  ele.forEach((e) => {
+    removeTask(e.id);
+    removeVisualTask(e.id);
   });
-}
-
-//Fetch tasks from Firestore when app loads
-async function renderTasks() {
-  var tasks = await getTasksFromFirestore();
-  taskList.innerHTML = "";
-
-  tasks.forEach((task) => {
-    if (!task.data().completed) {
-      const taskItem = document.createElement("li");
-      taskItem.id = task.id;
-      taskItem.textContent = task.data().text;
-      taskItem.tabIndex = 0;
-      taskList.appendChild(taskItem);
-    }
-  });
+  return true;
 }
 
 // Remove Task
@@ -196,14 +205,28 @@ taskList.addEventListener("click", async (e) => {
   renderTasks();
 });
 
-async function getTasksFromFirestore() {
-  var data = await getDocs(collection(db, "todos"));
-  let userData = [];
-  data.forEach((doc) => {
-    userData.push(doc);
-  });
-  return userData;
-}
+// Add Tasks on page load
+window.addEventListener("load", () => {
+  renderTasks();
+});
+
+//Accessibility
+//Enter key to add tasks
+taskInput.addEventListener("keypress", function (event) {
+  if (event.key === "Enter") {
+    addTaskBtn.click();
+  }
+});
+
+//Update Firebase on enter
+taskList.addEventListener("keypress", async function (e) {
+  if (e.target.tagName === "LI" && e.key === "Enter") {
+    await updateDoc(doc(db, "todos", e.target.id), {
+      completed: true,
+    });
+  }
+  renderTasks();
+});
 
 //Sanitize Data
 function sanitizeInput(input) {
